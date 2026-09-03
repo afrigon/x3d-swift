@@ -13,6 +13,13 @@ public struct Color {
         self.alpha = alpha
     }
     
+    public init(_ color: simd_float3, alpha: Float = 1.0) {
+        self.red = color.x
+        self.green = color.y
+        self.blue = color.z
+        self.alpha = alpha
+    }
+
     public var rgb: simd_float3 {
         simd_float3(red, green, blue)
     }

@@ -157,16 +157,8 @@ class MetalRenderer {
                     return nil
                 }
                 
-                // TODO: double check why I need to negate this value. what should be the correct direction to send for directional light
-                
-                let rotation = light.transform.rotation.eulerAngles
-                
                 return .init(
-                    direction: simd_normalize(simd_float3(
-                        rotation.x,
-                        rotation.y,
-                        -rotation.z
-                    )),
+                    direction: simd_normalize(light.transform.rotation.act(.forward)),
                     color: options.color.rgb,
                     intensity: options.intensity
                 )
@@ -231,10 +223,30 @@ class MetalRenderer {
                     switch material.options {
                         case .unlitColor(let m):
                             sceneEncoder.setFragmentBytes([m.color], length: MemoryLayout.size(ofValue: m.color), index: 1)
+                        case .toon(let m):
+                            let data = ToonData(
+                                directionalLightCount: UInt32(directionalLights.count),
+                                useAlbedoTexture: m.useAlbedoTexture,
+                                albedoColor: m.albedoColor.rgba,
+                                eyePosition: camera.transform.position,
+                                alphaCutoff: material.commonOptions.renderingMode.alphaCutoff,
+                                tiling: m.samplingOptions.tiling,
+                                offset: m.samplingOptions.offset
+                            )
+                            sceneEncoder.setFragmentBytes([data], length: MemoryLayout<ToonData>.stride, index: 1)
+                            sceneEncoder.setFragmentBytes(directionalLights, length: MemoryLayout<DirectionalLight>.stride * directionalLights.count, index: 2)
+                            
+                            if let albedoId = m.albedo,
+                               let albedo = repository.textures[albedoId],
+                               let sampler = repository.createOrGetSampler(albedo.options) {
+                                sceneEncoder.setFragmentTexture(albedo.texture, index: 3)
+                                sceneEncoder.setFragmentSamplerState(sampler, index: 4)
+                            }
                         case .blinnPhong(let m):
                             let data = BlinnPhongData(
                                 directionalLightCount: UInt32(directionalLights.count),
                                 useAlbedoTexture: m.useAlbedoTexture,
+                                useNormalMap: m.useNormalMap,
                                 albedoColor: m.albedoColor.rgba,
                                 specularStrength: m.specularStrength,
                                 shininess: m.shininess,
@@ -251,6 +263,13 @@ class MetalRenderer {
                                let sampler = repository.createOrGetSampler(albedo.options) {
                                 sceneEncoder.setFragmentTexture(albedo.texture, index: 3)
                                 sceneEncoder.setFragmentSamplerState(sampler, index: 4)
+                            }
+                            
+                            if let normalMapId = m.normalMap,
+                               let normalMap = repository.textures[normalMapId],
+                               let sampler = repository.createOrGetSampler(normalMap.options) {
+                                sceneEncoder.setFragmentTexture(normalMap.texture, index: 5)
+                                sceneEncoder.setFragmentSamplerState(sampler, index: 6)
                             }
                         case .normals:
                             break

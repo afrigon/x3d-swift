@@ -2,10 +2,11 @@ import MetalKit
 import XEngineCore
 
 public class MetalResourceRepository: ResourceRepository {
-    var shaders: [String: MTLRenderPipelineState] = [:]
-    var materials: [String: Material] = [:]
+    public var materials: [String: Material] = [:]
     var meshes: [String: MetalMesh] = [:]
     var textures: [String: MetalTexture] = [:]
+    
+    var shaders: [String: MTLRenderPipelineState] = [:]
     var samplers: [TextureOptions: MTLSamplerState] = [:]
     
     let textureLoader: MTKTextureLoader

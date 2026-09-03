@@ -44,6 +44,14 @@ let package = Package(
                 "XEngineCore"
             ],
             path: "Tests/Core"
+        ),
+        .testTarget(
+            name: "XEngineLoaderTests",
+            dependencies: [
+                "XEngineCore",
+                "XEngineLoader"
+            ],
+            path: "Tests/Loader"
         )
     ]
 )
