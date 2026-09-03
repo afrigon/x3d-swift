@@ -1,32 +1,19 @@
-public struct BlinnPhongMaterialOptions {
+public struct ToonMaterialOptions {
     public let albedoColor: Color
     public let albedo: String?
-    public let normalMap: String?
-    public let specularStrength: Float
-    public let shininess: Float
     public let samplingOptions: TextureSamplingOptions
 
     public var useAlbedoTexture: Bool {
         albedo != nil
     }
-    
-    public var useNormalMap: Bool {
-        normalMap != nil
-    }
 
     public init(
         albedoColor: Color,
         albedo: String? = nil,
-        normalMap: String? = nil,
-        specularStrength: Float = 0.5,
-        shininess: Float = 128,
         samplingOptions: TextureSamplingOptions = .init()
     ) {
         self.albedoColor = albedoColor
         self.albedo = albedo
-        self.normalMap = normalMap
-        self.specularStrength = specularStrength
-        self.shininess = shininess
         self.samplingOptions = samplingOptions
     }
 }
